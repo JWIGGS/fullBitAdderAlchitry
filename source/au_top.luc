@@ -1,0 +1,104 @@
+module au_top (
+    input clk,              // 100MHz clock
+    input rst_n,            // reset button (active low)
+    output led [8],         // 8 user controllable LEDs
+    input usb_rx,           // USB->Serial input
+    output usb_tx,          // USB->Serial output
+    output io_led [3][8],   // LEDs on IO Shield
+    output io_seg [8],      // 7-segment LEDs on IO Shield
+    output io_sel [4],      // Digit select on IO Shield
+    input io_button [5],    // 5 buttons on IO Shield
+    input io_dip [3][8],    // DIP switches on IO Shield
+    
+    //these output pins simulate the inputs for the full bit adder
+    output outValue [3],
+    
+    //these input pins are to check the output results of the full bit adder
+    input checkSum,
+    input checkCarry
+    
+  ) {
+  
+  sig rst;                  // reset signal
+  
+  
+  sig manualOverride, testX, testY, testCin, expectedS, expectedCout;
+  
+  .clk(clk) {
+    // The reset conditioner is used to synchronize the reset signal to the FPGA
+    // clock. This ensures the entire FPGA comes out of reset at the same time.
+    reset_conditioner reset_cond;
+  }
+  
+  full_adder_cycler_fsm cycler(.clk(clk), .rst(rst));
+  full_adder fa;
+  
+  always {
+    reset_cond.in = ~rst_n; // input raw inverted reset signal
+    rst = reset_cond.out;   // conditioned reset
+    
+    usb_tx = usb_rx;        // loop serial port
+    
+    led = 8h00;             // turn LEDs off
+    
+    io_led = 3x{{8h00}};    // turn LEDs off
+    io_seg = 8hff;          // turn segments off
+    io_sel = 4hf;           // select no digits
+    
+    //io_dip[2][0] acts as a switch to toggle a manual override
+    manualOverride = io_dip[2][0];
+    
+    /*
+    
+    MANUAL OVERRIDE
+       switches are used to control the test cases
+       
+    NOT MANUAL OVERRIDE
+      test cases are automatically cycled through all combinations, using the cycler
+       
+    */
+    
+    testX = manualOverride? io_dip[2][7]: cycler.x;
+    testY = manualOverride? io_dip[2][6]: cycler.y;
+    testCin = manualOverride? io_dip[2][5]: cycler.cin;
+    
+    //display the use test values to the left leds
+    io_led[2][7] = testX;
+    io_led[2][6] = testY;
+    io_led[2][5] = testCin;
+    
+    //set the output pins to the used vakues
+    outValue[0] = testX;
+    outValue[1] = testY;
+    outValue[2] = testCin;
+    
+    //hook up our input to our full adder on the FPGA
+    fa.x = testX;
+    fa.y = testY;
+    fa.cin = testCin;
+    
+    //get the expected output depending on the manual override
+    //if solely using the cycler, the expected output could be retreived using cycler.s and cycler.cout
+    
+    //expectedS =  manualOverride? cycler.s: fa.s;
+    //expectedCout =  manualOverride? cycler.cout: fa.cout;
+    
+    expectedS = fa.s;
+    expectedCout = fa.cout;
+    
+    
+    //display the EXPECTED input to middle leds as [sum, carry out] (aligned left)
+    io_led[1][7] = expectedS;
+    io_led[1][6] = expectedCout;
+    
+    //display the ACTUAL input on middle leds as [sum, carry out] (aligned right)
+    io_led[1][1] = checkSum;
+    io_led[1][0] = checkCarry;
+    
+    //display whether the actual input matches the expected input
+    io_led[0] = 8x{expectedS == checkSum & expectedCout == checkCarry};
+    
+    
+    
+  }
+}

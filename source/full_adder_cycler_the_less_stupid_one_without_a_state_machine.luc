@@ -1,0 +1,17 @@
+module full_adder_cycler_the_less_stupid_one_without_a_state_machine (
+    input clk,  // clock
+    input rst,  // reset
+    output x,   //x value
+    output y,   //y value
+    output cin //carry in value
+  ) {
+  
+  counter cnt(#SIZE(3),#DIV(28), .clk(clk), .rst(rst));
+  
+  always {
+    x = cnt.value[0];
+    y = cnt.value[1];
+    cin = cnt.value[2];
+    
+  }
+}

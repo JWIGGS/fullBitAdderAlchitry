@@ -1,0 +1,109 @@
+module full_adder_cycler_fsm (
+    input clk,  // clock
+    input rst,  // reset
+    output x,   //x value
+    output y,   //y value
+    output cin, //carry in value
+    output s,   //expected sum output
+    output cout //expected carry out value
+  ) {
+  
+  dff counter[28](.clk(clk), .rst(rst));
+  fsm fsm_checker(.clk(clk), .rst(rst)) = {OFF, X, Y, C, XY, YC, XC, XYC};
+
+  always {
+    
+    x = 0;
+    y = 0;
+    cin = 0;
+    s = 0;
+    cout = 0;
+    
+    counter.d = counter.q+1;
+    
+    case(fsm_checker.q){
+      fsm_checker.OFF:
+        x = 0;
+        y = 0;
+        cin = 0;
+        s = 0;
+        cout = 0;
+        if(counter.q[27] == 1){
+          fsm_checker.d = fsm_checker.X;
+          counter.d = 0;
+        }
+        
+      fsm_checker.X:
+        x = 1;
+        y = 0;
+        cin = 0;
+        s = 1;
+        cout = 0;
+        if(counter.q[27] == 1){
+          fsm_checker.d = fsm_checker.Y;
+          counter.d = 0;
+        }
+      fsm_checker.Y:
+        x = 0;
+        y = 1;
+        cin = 0;
+        s = 1;
+        cout = 0;
+        if(counter.q[27] == 1){
+          fsm_checker.d = fsm_checker.C;
+          counter.d = 0;
+        }
+      fsm_checker.C:
+        x = 0;
+        y = 0;
+        cin = 1;
+        s = 1;
+        cout = 0;
+        if(counter.q[27] == 1){
+          fsm_checker.d = fsm_checker.XY;
+          counter.d = 0;
+        }
+      fsm_checker.XY:
+        x = 1;
+        y = 1;
+        cin = 0;
+        s = 0;
+        cout = 1;
+        if(counter.q[27] == 1){
+          fsm_checker.d = fsm_checker.YC;
+          counter.d = 0;
+        }
+      fsm_checker.YC:
+        x = 0;
+        y = 1;
+        cin = 1;
+        s = 0;
+        cout = 1;
+        if(counter.q[27] == 1){
+          fsm_checker.d = fsm_checker.XC;
+          counter.d = 0;
+        }
+      fsm_checker.XC:
+        x = 1;
+        y = 0;
+        cin = 1;
+        s = 0;
+        cout = 1;
+        if(counter.q[27] == 1){
+          fsm_checker.d = fsm_checker.XYC;
+          counter.d = 0;
+        }
+      fsm_checker.XYC:
+        x = 1;
+        y = 1;
+        cin = 1;
+        s = 1;
+        cout = 1;
+        if(counter.q[27] == 1){
+          fsm_checker.d = fsm_checker.OFF;
+          counter.d = 0;
+        }
+    }
+    
+  }
+}

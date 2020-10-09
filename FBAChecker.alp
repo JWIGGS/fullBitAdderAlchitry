@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="FPGA Intro 1" board="Alchitry Au" language="Lucid" version="3">
+  <files>
+    <src>full_adder_cycler_the_less_stupid_one_without_a_state_machine.luc</src>
+    <src top="true">au_top.luc</src>
+    <src>full_adder_cycler_fsm.luc</src>
+    <src>full_adder.luc</src>
+    <component>counter.luc</component>
+    <component>reset_conditioner.luc</component>
+    <constraint>custom.acf</constraint>
+    <constraint>constraints.xdc</constraint>
+  </files>
+</project>
