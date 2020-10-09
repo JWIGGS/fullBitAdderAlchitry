@@ -1,3 +1,5 @@
+//as requested, a full adder in the form of a state machine
+
 module full_adder_cycler_fsm (
     input clk,  // clock
     input rst,  // reset

@@ -1,3 +1,5 @@
+//the easiest way to cycle through values is just to use a 3 bit counter and not a FSM, therefore this is the less stupid one without a state mcahine
+
 module full_adder_cycler_the_less_stupid_one_without_a_state_machine (
     input clk,  // clock
     input rst,  // reset

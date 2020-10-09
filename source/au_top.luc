@@ -11,16 +11,15 @@ module au_top (
     input io_dip [3][8],    // DIP switches on IO Shield
     
     //these output pins simulate the inputs for the full bit adder
-    output outValue [3],
+    output outValue [3],    //C3, C6, C9
     
     //these input pins are to check the output results of the full bit adder
-    input checkSum,
-    input checkCarry
+    input checkSum,         //C46
+    input checkCarry        //C49
     
   ) {
   
   sig rst;                  // reset signal
-  
   
   sig manualOverride, testX, testY, testCin, expectedS, expectedCout;
   
@@ -83,6 +82,7 @@ module au_top (
     //expectedS =  manualOverride? cycler.s: fa.s;
     //expectedCout =  manualOverride? cycler.cout: fa.cout;
     
+    //the expectedS and expexted Cout is currently retreived using an actual full adder (fa) for simplicity rather than the code above.
     expectedS = fa.s;
     expectedCout = fa.cout;
     
